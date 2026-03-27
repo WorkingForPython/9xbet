@@ -20,10 +20,16 @@ jobs:
         distribution: 'temurin'
 
     - name: Build Fat JAR with Maven
+      working-directory: ./Project_Auction
       run: mvn clean package
 
     - name: Create MSI with jpackage
+      working-directory: ./Project_Auction
       shell: pwsh
+      run: |
+        $jarFile = (Get-ChildItem -Path target/ -Filter *.jar | Where-Object { $_.Name -notmatch '^original-' } | Select-Object -First 1).Name
+        Write-Host "Successfully found JAR: $jarFile"
+        jpackage --type msi --name AuctionApp --app-version 1.0 --input target/ --main-jar $jarFile --win-shortcut --win-menu
       run: |
         # 1. Automatically find the Fat JAR (and ignore the 'original' skinny one)
         $jarFile = (Get-ChildItem -Path target/ -Filter *.jar | Where-Object { $_.Name -notmatch '^original-' } | Select-Object -First 1).Name
