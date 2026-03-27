@@ -32,7 +32,7 @@ jobs:
         Write-Host "Successfully found JAR: $jarFile"
         
         # 2. Build the MSI using the exact file we just found
-        jpackage --type msi --name AuctionApp --app-version 1.0 --input target/ --main-jar $jarFile --main-class com.auction.app.Launcher --win-shortcut --win-menu
+        jpackage --type exe --name AuctionApp --app-version 1.0 --input target/ --main-jar $jarFile --main-class com.auction.app.Launcher --win-shortcut --win-menu
       
     - name: Upload MSI for download
       uses: actions/upload-artifact@v4
