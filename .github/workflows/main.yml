@@ -1,0 +1,33 @@
+name: Build Windows MSI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:          
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Build Fat JAR with Maven
+      run: mvn clean package
+
+    - name: Create MSI with jpackage
+      run: |
+        jpackage --type msi --name AuctionApp --app-version 1.0 --input target/ --main-jar AuctionApp-1.0-SNAPSHOT.jar --win-shortcut --win-menu
+      
+    - name: Upload MSI for download
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-Installer
+        path: "*.msi"
