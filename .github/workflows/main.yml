@@ -20,7 +20,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build Fat JAR with Maven
-      run: mvn clean package
+      run: ./mvnw clean package
 
     - name: Create MSI with jpackage
       run: |
