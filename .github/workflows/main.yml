@@ -13,29 +13,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up JavaCreate a b
+    - name: Set up Java
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Build Fat JAR with Maven
+    - name: Build and Gather Dependencies
       working-directory: ./Project_Auction
-      run: mvn clean package
+      shell: pwsh
+      run: |
+        mvn clean package
+        mvn dependency:copy-dependencies -DoutputDirectory=target/libs -DincludeScope=runtime
+        
+        $jarFile = (Get-ChildItem -Path target/ -Filter *.jar | Where-Object { $_.Name -notmatch '^original-' } | Select-Object -First 1)
+        Copy-Item $jarFile.FullName -Destination target/libs/
+        Write-Host "Successfully prepared libs folder!"
 
     - name: Create MSI with jpackage
       working-directory: ./Project_Auction
       shell: pwsh
       run: |
-        # 1. Automatically find the Fat JAR (and ignore the 'original' skinny one)
-        $jarFile = (Get-ChildItem -Path target/ -Filter *.jar | Where-Object { $_.Name -notmatch '^original-' } | Select-Object -First 1).Name
-        Write-Host "Successfully found JAR: $jarFile"
-        
-        # 2. Build the MSI using the exact file we just found
-        jpackage --type exe --name AuctionApp --app-version 1.0 --input target/ --main-jar $jarFile --main-class com.auction.app.Launcher --win-shortcut --win-menu --win-console
+        $jarName = (Get-ChildItem -Path target/ -Filter *.jar | Where-Object { $_.Name -notmatch '^original-' } | Select-Object -First 1).Name
+        jpackage --type msi --name AuctionApp --app-version 1.0 --input target/libs/ --main-jar $jarName --main-class com.auction.app.Launcher --win-shortcut --win-menu --win-console
       
     - name: Upload MSI for download
       uses: actions/upload-artifact@v4
       with:
         name: Windows-Installer
-        path: "**/*.exe"
+        path: "**/*.msi"
