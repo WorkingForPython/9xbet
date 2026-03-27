@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Java
+    - name: Set up JavaCreate a b
       uses: actions/setup-java@v4
       with:
         java-version: '21'
@@ -38,4 +38,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Windows-Installer
-        path: "**/*.msi"
+        path: "**/*.exe"
